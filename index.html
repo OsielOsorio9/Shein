@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Precios con Margen Comercial</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+            --success-color: #2ecc71;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .description {
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .calculator {
+            background-color: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        
+        input[type="number"]:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-weight: 600;
+        }
+        
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-reset {
+            background-color: var(--dark-color);
+            margin-left: 10px;
+        }
+        
+        .btn-reset:hover {
+            background-color: #2c3e50;
+        }
+        
+        .result {
+            background-color: var(--light-color);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            text-align: center;
+            display: none;
+        }
+        
+        .result h3 {
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+        }
+        
+        .result-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--success-color);
+        }
+        
+        .error {
+            color: var(--accent-color);
+            margin-top: 5px;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .input-hint {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 4px;
+        }
+        
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Calculadora de Precios</h1>
+            <p class="description">Calcula el precio final de tus productos considerando margen comercial, costos de envío y tasa de cambio.</p>
+        </header>
+        
+        <div class="calculator">
+            <div class="grid">
+                <div class="form-group">
+                    <label for="precio_producto">Precio del producto</label>
+                    <input type="number" id="precio_producto" step="0.01" min="0" placeholder="Ej: 100.00">
+                    <div class="error" id="error_precio">Ingrese un precio válido</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="margen_comercial">Margen comercial (%)</label>
+                    <input type="number" id="margen_comercial" step="0.01" min="0" placeholder="Ej: 15 para 15%">
+                    <div class="error" id="error_margen">Ingrese un margen válido</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="tasa_cambio">Tasa de cambio</label>
+                    <input type="number" id="tasa_cambio" step="0.0001" min="0" placeholder="Ej: 405 ">
+                    <div class="error" id="error_tasa">Ingrese una tasa de cambio válida</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="cantidad_productos">Cantidad de productos</label>
+                    <input type="number" id="cantidad_productos" min="1" placeholder="Ej: 10">
+                    <div class="error" id="error_cantidad">Ingrese una cantidad válida</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="peso_producto">Peso del producto</label>
+                    <input type="number" id="peso_producto" step="0.01" min="0" placeholder="Ej: 1.5 (kg)">
+                    <div class="error" id="error_peso">Ingrese un peso válido</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="precio_por_peso">Costo por libra (envío)</label>
+                    <input type="number" id="precio_por_peso" step="0.01" min="0" placeholder="Ej: 6.5">
+                    <div class="input-hint">Costo de envío por unidad de peso</div>
+                    <div class="error" id="error_costo_peso">Ingrese un costo válido</div>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn" id="btn-calcular">Calcular Precio Final</button>
+                <button class="btn btn-reset" id="btn-reset">Limpiar</button>
+            </div>
+            
+            <div class="result" id="resultado">
+                <h3>Precio final por unidad:</h3>
+                <div class="result-value" id="precio_final">0.00</div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2023 Calculadora de Precios con Margen Comercial</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Referencias a elementos del DOM
+            const precioProducto = document.getElementById('precio_producto');
+            const margenComercial = document.getElementById('margen_comercial');
+            const tasaCambio = document.getElementById('tasa_cambio');
+            const cantidadProductos = document.getElementById('cantidad_productos');
+            const pesoProducto = document.getElementById('peso_producto');
+            const precioPorPeso = document.getElementById('precio_por_peso');
+            const btnCalcular = document.getElementById('btn-calcular');
+            const btnReset = document.getElementById('btn-reset');
+            const resultado = document.getElementById('resultado');
+            const precioFinal = document.getElementById('precio_final');
+            
+            // Referencias a mensajes de error
+            const errorPrecio = document.getElementById('error_precio');
+            const errorMargen = document.getElementById('error_margen');
+            const errorTasa = document.getElementById('error_tasa');
+            const errorCantidad = document.getElementById('error_cantidad');
+            const errorPeso = document.getElementById('error_peso');
+            const errorCostoPeso = document.getElementById('error_costo_peso');
+            
+            // Función para validar entrada
+            function validarEntrada(input, errorElement) {
+                if (isNaN(input.value) || input.value === '' || parseFloat(input.value) < 0) {
+                    errorElement.style.display = 'block';
+                    input.style.borderColor = '#e74c3c';
+                    return false;
+                } else {
+                    errorElement.style.display = 'none';
+                    input.style.borderColor = '#ddd';
+                    return true;
+                }
+            }
+            
+            // Función para validar todos los campos
+            function validarCampos() {
+                let valido = true;
+                
+                if (!validarEntrada(precioProducto, errorPrecio)) valido = false;
+                if (!validarEntrada(margenComercial, errorMargen)) valido = false;
+                if (!validarEntrada(tasaCambio, errorTasa)) valido = false;
+                if (!validarEntrada(cantidadProductos, errorCantidad)) valido = false;
+                if (!validarEntrada(pesoProducto, errorPeso)) valido = false;
+                if (!validarEntrada(precioPorPeso, errorCostoPeso)) valido = false;
+                
+                return valido;
+            }
+            
+            // Función para calcular el precio final
+            function calcularPrecio() {
+                if (!validarCampos()) {
+                    return;
+                }
+                
+                // Obtener valores de los inputs
+                const precio = parseFloat(precioProducto.value);
+                const margen = parseFloat(margenComercial.value) / 100; // Convertir porcentaje a decimal
+                const tasa = parseFloat(tasaCambio.value);
+                const cantidad = parseInt(cantidadProductos.value);
+                const peso = parseFloat(pesoProducto.value);
+                const costoPeso = parseFloat(precioPorPeso.value);
+                
+                // Realizar cálculos
+                const precioConMargen = precio * (1 + margen);
+                const costoEnvio = peso * costoPeso;
+                const costoTotal = (precioConMargen + costoEnvio) ;
+                const precioConvertido = costoTotal * tasa;
+                const precioFinalPorUnidad = precioConvertido / cantidad;
+                
+                // Mostrar resultado
+                precioFinal.textContent = precioFinalPorUnidad.toFixed(2);
+                resultado.style.display = 'block';
+                
+                // Desplazarse suavemente al resultado
+                resultado.scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            // Función para resetear el formulario
+            function resetearFormulario() {
+                precioProducto.value = '';
+                margenComercial.value = '';
+                tasaCambio.value = '';
+                cantidadProductos.value = '';
+                pesoProducto.value = '';
+                precioPorPeso.value = '';
+                
+                // Ocultar mensajes de error
+                errorPrecio.style.display = 'none';
+                errorMargen.style.display = 'none';
+                errorTasa.style.display = 'none';
+                errorCantidad.style.display = 'none';
+                errorPeso.style.display = 'none';
+                errorCostoPeso.style.display = 'none';
+                
+                // Restablecer bordes
+                const inputs = document.querySelectorAll('input');
+                inputs.forEach(input => {
+                    input.style.borderColor = '#ddd';
+                });
+                
+                // Ocultar resultado
+                resultado.style.display = 'none';
+            }
+            
+            // Event listeners
+            btnCalcular.addEventListener('click', calcularPrecio);
+            btnReset.addEventListener('click', resetearFormulario);
+            
+            // Validación en tiempo real para cada campo
+            precioProducto.addEventListener('input', function() {
+                validarEntrada(precioProducto, errorPrecio);
+            });
+            
+            margenComercial.addEventListener('input', function() {
+                validarEntrada(margenComercial, errorMargen);
+            });
+            
+            tasaCambio.addEventListener('input', function() {
+                validarEntrada(tasaCambio, errorTasa);
+            });
+            
+            cantidadProductos.addEventListener('input', function() {
+                validarEntrada(cantidadProductos, errorCantidad);
+            });
+            
+            pesoProducto.addEventListener('input', function() {
+                validarEntrada(pesoProducto, errorPeso);
+            });
+            
+            precioPorPeso.addEventListener('input', function() {
+                validarEntrada(precioPorPeso, errorCostoPeso);
+            });
+        });
+    </script>
+</body>
+</html>
